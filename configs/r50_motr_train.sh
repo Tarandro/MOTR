@@ -30,5 +30,5 @@ python3 -m torch.distributed.launch --nproc_per_node=8 \
     --fp_ratio 0.3 \
     --query_interaction_layer 'QIM' \
     --extra_track_attn \
-    --data_txt_path_train ./datasets/data_path/joint.train \
-    --data_txt_path_val ./datasets/data_path/mot17.train \
+    --data_txt_path_train ./datasets/data_path/joint.train.txt \
+    --data_txt_path_val ./datasets/data_path/joint.val.txt \
