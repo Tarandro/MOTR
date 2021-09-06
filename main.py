@@ -146,7 +146,7 @@ def get_args_parser():
     parser.add_argument('--cache_mode', default=False, action='store_true', help='whether to cache images on memory')
 
     # end-to-end mot settings.
-    parser.add_argument('--mot_path', default='/data/Dataset/mot', type=str)
+    parser.add_argument('--mot_path', default='.', type=str)
     parser.add_argument('--data_txt_path_train',
                         default='./datasets/data_path/detmot17.train', type=str,
                         help="path to dataset txt split")
