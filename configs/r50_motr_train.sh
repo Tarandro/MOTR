@@ -7,7 +7,7 @@
 
 PRETRAIN=coco_model_final.pth
 EXP_DIR=exps/e2e_motr_r50_joint
-python3 -m torch.distributed.launch --nproc_per_node=8 \
+python3 -m torch.distributed.launch --nproc_per_node=1 \
     --use_env main.py \
     --meta_arch motr \
     --dataset_file e2e_joint \
