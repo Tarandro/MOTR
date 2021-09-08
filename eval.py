@@ -267,8 +267,8 @@ class Detector(object):
         self.detr = model
 
         self.seq_num = seq_num
-        img_list = os.listdir(os.path.join(self.args.mot_path, 'MOT15/images/train', self.seq_num, 'img1'))
-        img_list = [os.path.join(self.args.mot_path, 'MOT15/images/train', self.seq_num, 'img1', _) for _ in img_list if
+        img_list = os.listdir(os.path.join(self.args.mot_path, 'MOT17/images', self.seq_num))
+        img_list = [os.path.join(self.args.mot_path, 'MOT17/images', self.seq_num, _) for _ in img_list if
                     ('jpg' in _) or ('png' in _)]
 
         self.img_list = sorted(img_list)
@@ -337,7 +337,7 @@ class Detector(object):
                 f.write(line)
 
     def eval_seq(self):
-        data_root = os.path.join(self.args.mot_path, 'MOT15/images/train')
+        data_root = os.path.join(self.args.mot_path, 'MOT17/images')
         result_filename = os.path.join(self.predict_path, 'gt.txt')
         evaluator = Evaluator(data_root, self.seq_num)
         accs = evaluator.eval_file(result_filename)
@@ -411,15 +411,16 @@ if __name__ == '__main__':
     detr = detr.cuda()
     detr.eval()
 
-    seq_nums = ['ADL-Rundle-6', 'ETH-Bahnhof', 'KITTI-13', 'PETS09-S2L1', 'TUD-Stadtmitte', 'ADL-Rundle-8', 'KITTI-17',
-                'ETH-Pedcross2', 'ETH-Sunnyday', 'TUD-Campus', 'Venice-2']
+    seq_nums = ['57998_002181_Sideline', '58000_001306_Sideline', '58005_001254_Sideline', '58005_001612_Sideline',
+                '58048_000086_Sideline', '58093_001923_Sideline', '58094_000423_Sideline', '58094_002819_Sideline',
+                '58095_004022_Sideline', '58098_001193_Sideline', '58102_002798_Sideline', '58103_003494_Sideline']
     accs = []
     seqs = []
 
     for seq_num in seq_nums:
         print("solve {}".format(seq_num))
         det = Detector(args, model=detr, seq_num=seq_num)
-        det.detect(vis=False)
+        det.detect(vis=True)
         accs.append(det.eval_seq())
         seqs.append(seq_num)
 
