@@ -278,8 +278,8 @@ class Detector(object):
         '''
         common settings
         '''
-        self.img_height = 800
-        self.img_width = 1536
+        self.img_height = 720
+        self.img_width = 1280
         self.mean = [0.485, 0.456, 0.406]
         self.std = [0.229, 0.224, 0.225]
 
@@ -411,9 +411,7 @@ if __name__ == '__main__':
     detr = detr.cuda()
     detr.eval()
 
-    seq_nums = ['57998_002181_Sideline', '58000_001306_Sideline', '58005_001254_Sideline', '58005_001612_Sideline',
-                '58048_000086_Sideline', '58093_001923_Sideline', '58094_000423_Sideline', '58094_002819_Sideline',
-                '58095_004022_Sideline', '58098_001193_Sideline', '58102_002798_Sideline', '58103_003494_Sideline']
+    seq_nums = ['57998_002181_Sideline', '58000_001306_Sideline']
     accs = []
     seqs = []
 
