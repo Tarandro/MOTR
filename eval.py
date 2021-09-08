@@ -291,7 +291,7 @@ class Detector(object):
         if os.path.exists(os.path.join(self.predict_path, 'gt.txt')):
             os.remove(os.path.join(self.predict_path, 'gt.txt'))
 
-    @staticmethod
+
     def load_img_from_file(self, f_path):
         label_path = f_path.replace('images', 'labels_with_ids').replace('.png', '.txt').replace('.jpg', '.txt')
         cur_img = cv2.imread(f_path)
