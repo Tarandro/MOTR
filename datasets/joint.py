@@ -109,10 +109,15 @@ class DetMOTDetection:
 
             # normalized cewh to pixel xyxy format
             labels = labels0.copy()
-            labels[:, 2] = w * (labels0[:, 2] - labels0[:, 4] / 2)
-            labels[:, 3] = h * (labels0[:, 3] - labels0[:, 5] / 2)
-            labels[:, 4] = w * (labels0[:, 2] + labels0[:, 4] / 2)
-            labels[:, 5] = h * (labels0[:, 3] + labels0[:, 5] / 2)
+            #labels[:, 2] = w * (labels0[:, 2] - labels0[:, 4] / 2)
+            #labels[:, 3] = h * (labels0[:, 3] - labels0[:, 5] / 2)
+            #labels[:, 4] = w * (labels0[:, 2] + labels0[:, 4] / 2)
+            #labels[:, 5] = h * (labels0[:, 3] + labels0[:, 5] / 2)
+            labels[:, 2] = labels0[:, 2]
+            labels[:, 3] = labels0[:, 3]
+            labels[:, 4] = labels0[:, 2] + labels0[:, 4]
+            labels[:, 5] = labels0[:, 3] + labels0[:, 5]
+            #print(labels)
         else:
             raise ValueError('invalid label path: {}'.format(label_path))
         video_name = '/'.join(label_path.split('/')[:-1])
@@ -180,6 +185,7 @@ class DetMOTDetection:
         for img_i, targets_i in zip(images, targets):
             gt_instances_i = self._targets_to_instances(targets_i, img_i.shape[1:3])
             gt_instances.append(gt_instances_i)
+        #print(2, images, gt_instances, 2)
         data.update({
             'imgs': images,
             'gt_instances': gt_instances,
@@ -268,8 +274,8 @@ def build_dataset2transform(args, image_set):
     mot17_test = make_transforms_for_mot17('val', args)
 
     crowdhuman_train = make_transforms_for_crowdhuman('train', args)
-    dataset2transform_train = {'MOT17': mot17_train, 'CrowdHuman': crowdhuman_train}
-    dataset2transform_val = {'MOT17': mot17_test, 'CrowdHuman': mot17_test}
+    dataset2transform_train = {'MOT17': mot17_train}#, 'CrowdHuman': crowdhuman_train}
+    dataset2transform_val = {'MOT17': mot17_test}#, 'CrowdHuman': mot17_test}
     if image_set == 'train':
         return dataset2transform_train
     elif image_set == 'val':

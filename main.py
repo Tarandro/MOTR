@@ -42,7 +42,7 @@ def get_args_parser():
     parser.add_argument('--weight_decay', default=1e-4, type=float)
     parser.add_argument('--epochs', default=50, type=int)
     parser.add_argument('--lr_drop', default=40, type=int)
-    parser.add_argument('--save_period', default=50, type=int)
+    parser.add_argument('--save_period', default=1, type=int)
     parser.add_argument('--lr_drop_epochs', default=None, type=int, nargs='+')
     parser.add_argument('--clip_max_norm', default=0.1, type=float,
                         help='gradient clipping max norm')
@@ -308,10 +308,10 @@ def main(args):
             lr_scheduler.step(lr_scheduler.last_epoch)
             args.start_epoch = checkpoint['epoch'] + 1
         # check the resumed model
-        if not args.eval:
-            test_stats, coco_evaluator = evaluate(
-                 model, criterion, postprocessors, data_loader_val, base_ds, device, args.output_dir
-             )
+        #if not args.eval:
+        #    test_stats, coco_evaluator = evaluate(
+        #         model, criterion, postprocessors, data_loader_val, base_ds, device, args.output_dir
+        #     )
     
     if args.eval:
         test_stats, coco_evaluator = evaluate(model, criterion, postprocessors,
@@ -348,7 +348,7 @@ def main(args):
                     'args': args,
                 }, checkpoint_path)
         # if args.dataset_file in ['e2e_mot', 'mot', 'ori_mot', 'e2e_static_mot', 'e2e_joint']:
-        #     detmotdet_evaluate(model, data_loader_val, device)
+        #    detmotdet_evaluate(model, data_loader_val, device)
         #     log_stats = {**{f'train_{k}': v for k, v in train_stats.items()},
         #                  'epoch': epoch,
         #                  'n_parameters': n_parameters}
