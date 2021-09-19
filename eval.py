@@ -411,14 +411,14 @@ if __name__ == '__main__':
     detr = detr.cuda()
     detr.eval()
 
-    seq_nums = ['57998_002181_Sideline', '58000_001306_Sideline']
+    seq_nums = ["57904_001367_Sideline", "57998_002181_Sideline"]
     accs = []
     seqs = []
 
     for seq_num in seq_nums:
         print("solve {}".format(seq_num))
         det = Detector(args, model=detr, seq_num=seq_num)
-        det.detect(vis=True)
+        det.detect(prob_threshold=0.3, vis=True)
         accs.append(det.eval_seq())
         seqs.append(seq_num)
 
