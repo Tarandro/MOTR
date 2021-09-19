@@ -428,8 +428,6 @@ if __name__ == '__main__':
 
     metrics = mm.metrics.motchallenge_metrics
     mh = mm.metrics.create()
-    print("111", accs)
-    print("222", seqs)
     summary = Evaluator.get_summary(accs, seqs, metrics)
     strsummary = mm.io.render_summary(
         summary,
