@@ -422,7 +422,7 @@ if __name__ == '__main__':
     for seq_num in seq_nums:
         print("solve {}".format(seq_num))
         det = Detector(args, model=detr, seq_num=seq_num)
-        det.detect(prob_threshold=0.3, vis=True)
+        det.detect(prob_threshold=0.5, vis=True)
         accs.append(det.eval_seq())
         seqs.append(seq_num)
 
