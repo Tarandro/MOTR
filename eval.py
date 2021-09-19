@@ -172,10 +172,14 @@ def load_label(label_path: str, img_size: tuple) -> dict:
     h, w = img_size
     # Normalized cewh to pixel xyxy format
     labels = labels0.copy()
-    labels[:, 2] = w * (labels0[:, 2] - labels0[:, 4] / 2)
-    labels[:, 3] = h * (labels0[:, 3] - labels0[:, 5] / 2)
-    labels[:, 4] = w * (labels0[:, 2] + labels0[:, 4] / 2)
-    labels[:, 5] = h * (labels0[:, 3] + labels0[:, 5] / 2)
+    # labels[:, 2] = w * (labels0[:, 2] - labels0[:, 4] / 2)
+    # labels[:, 3] = h * (labels0[:, 3] - labels0[:, 5] / 2)
+    # labels[:, 4] = w * (labels0[:, 2] + labels0[:, 4] / 2)
+    # labels[:, 5] = h * (labels0[:, 3] + labels0[:, 5] / 2)
+    labels[:, 2] = labels0[:, 2]
+    labels[:, 3] = labels0[:, 3]
+    labels[:, 4] = labels0[:, 2] + labels0[:, 4]
+    labels[:, 5] = labels0[:, 3] + labels0[:, 5]
     targets = {'boxes': [], 'labels': [], 'area': []}
     num_boxes = len(labels)
 
