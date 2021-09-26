@@ -87,8 +87,8 @@ def plot_one_box(x, img, color=None, label=None, score=None, line_thickness=None
     #                 tl / 3, [225, 255, 255],
     #                 thickness=tf,
     #                 lineType=cv2.LINE_AA)
-    if score is not None:
-        cv2.putText(img, score, (c1[0], c1[1] + 30), 0, tl / 3, [225, 255, 255], thickness=tf, lineType=cv2.LINE_AA)
+    #if score is not None:
+    #    cv2.putText(img, score, (c1[0], c1[1] + 30), 0, tl / 3, [225, 255, 255], thickness=tl, lineType=cv2.LINE_AA)
     return img
 
 
@@ -381,12 +381,6 @@ class Detector(object):
             all_ref_pts = tensor_to_numpy(res['ref_pts'][0, :, :2])
             dt_instances = track_instances.to(torch.device('cpu'))
 
-            print("score :")
-            print(dt_instances.scores)
-            print("pred_logits")
-            print(dt_instances.pred_logits)
-            print()
-
             # filter det instances by score.
             dt_instances = self.filter_dt_by_score(dt_instances, prob_threshold)
             dt_instances = self.filter_dt_by_area(dt_instances, area_threshold)
@@ -431,6 +425,7 @@ if __name__ == '__main__':
         det.detect(prob_threshold=0.5, vis=True)
         accs.append(det.eval_seq())
         seqs.append(seq_num)
+        detr.track_base.clear()
 
     metrics = mm.metrics.motchallenge_metrics
     mh = mm.metrics.create()

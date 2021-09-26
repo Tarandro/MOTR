@@ -312,9 +312,29 @@ class RuntimeTrackerBase(object):
         self.max_obj_id = 0
 
     def update(self, track_instances: Instances):
-        track_instances.disappear_time[track_instances.scores >= self.score_thresh] = 0
-        for i in range(len(track_instances)):
-            if track_instances.obj_idxes[i] == -1 and track_instances.scores[i] >= self.score_thresh:
+        self.score_thresh = 0.4
+        self.filter_score_thresh = 0.4
+        track_instances.disappear_time[track_instances.scores >= self.filter_score_thresh] = 0
+        ordered, indices = torch.sort(track_instances.obj_idxes)
+        new_list = []
+        for i in indices.cpu().numpy():
+            if track_instances.obj_idxes[i] == -1 and track_instances.scores[i] >= self.score_thresh and track_instances.pred_logits[i] >= 0:
+                #if self.max_obj_id > 0:
+                #    good_boxes = track_instances[(track_instances.obj_idxes != -1).nonzero()].pred_boxes
+                #    good_boxes = torch.squeeze(good_boxes, 1)
+                #    try_boxes = track_instances.pred_boxes[i:i+1]
+                #    good_boxes = box_ops.box_cxcywh_to_xyxy(good_boxes)
+                #    try_boxes = box_ops.box_cxcywh_to_xyxy(try_boxes)
+                #    #print(track_instances[(track_instances.obj_idxes != -1).nonzero()].pred_logits)
+                #    iou = pairwise_iou(Boxes(try_boxes), Boxes(good_boxes))
+                #    #print(iou)
+                #    #print(torch.max(iou))
+
+                #    if torch.max(iou) < 0.9:
+                #        print("track {} has score {}, assign obj_id {}".format(i, track_instances.scores[i], self.max_obj_id))
+                #        track_instances.obj_idxes[i] = self.max_obj_id
+                #        self.max_obj_id += 1
+                #else:
                 print("track {} has score {}, assign obj_id {}".format(i, track_instances.scores[i], self.max_obj_id))
                 track_instances.obj_idxes[i] = self.max_obj_id
                 self.max_obj_id += 1
@@ -323,6 +343,16 @@ class RuntimeTrackerBase(object):
                 if track_instances.disappear_time[i] >= self.miss_tolerance:
                     # Set the obj_id to -1.
                     # Then this track will be removed by TrackEmbeddingLayer.
+                    track_instances.obj_idxes[i] = -1
+            if track_instances.obj_idxes[i] >= 0:
+                try_boxes = track_instances.pred_boxes[i]
+                ok = True
+                for it in new_list:
+                    if torch.equal(it, try_boxes):
+                        ok = False
+                if ok:
+                    new_list.append(try_boxes)
+                else:
                     track_instances.obj_idxes[i] = -1
 
 
