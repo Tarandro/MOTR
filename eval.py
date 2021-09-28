@@ -415,7 +415,7 @@ if __name__ == '__main__':
     detr = detr.cuda()
     detr.eval()
 
-    seq_nums = ["57904_001367_Sideline", "57998_002181_Sideline"]
+    seq_nums = ["57904_001367_Sideline", "57998_002181_Sideline", "58103_003494_Sideline", "57786_003085_Sideline"]
     accs = []
     seqs = []
 
