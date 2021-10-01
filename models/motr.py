@@ -311,49 +311,90 @@ class RuntimeTrackerBase(object):
     def clear(self):
         self.max_obj_id = 0
 
-    def update(self, track_instances: Instances):
+    def update(self, track_instances: Instances, gt_instances_i):
         self.score_thresh = 0.4
         self.filter_score_thresh = 0.4
+
+        pred_logits_i = track_instances.pred_logits  # predicted logits of i-th image.
+        pred_boxes_i = track_instances.pred_boxes  # predicted boxes of i-th image.
+
+        outputs_i = {
+            'pred_logits': pred_logits_i.unsqueeze(0),
+            'pred_boxes': pred_boxes_i.unsqueeze(0),
+        }
+
+        new_track_indices = matcher(outputs_i,
+                                    [gt_instances_i])  # list[tuple(src_idx, tgt_idx)]
+
+        src_idx = new_track_indices[0][0]
+        src_idx = src_idx.cpu().numpy()
+
         track_instances.disappear_time[track_instances.scores >= self.filter_score_thresh] = 0
         ordered, indices = torch.sort(track_instances.obj_idxes)
         new_list = []
         for i in indices.cpu().numpy():
-            if track_instances.obj_idxes[i] == -1 and track_instances.scores[i] >= self.score_thresh and track_instances.pred_logits[i] >= 0:
-                #if self.max_obj_id > 0:
-                #    good_boxes = track_instances[(track_instances.obj_idxes != -1).nonzero()].pred_boxes
-                #    good_boxes = torch.squeeze(good_boxes, 1)
-                #    try_boxes = track_instances.pred_boxes[i:i+1]
-                #    good_boxes = box_ops.box_cxcywh_to_xyxy(good_boxes)
-                #    try_boxes = box_ops.box_cxcywh_to_xyxy(try_boxes)
-                #    #print(track_instances[(track_instances.obj_idxes != -1).nonzero()].pred_logits)
-                #    iou = pairwise_iou(Boxes(try_boxes), Boxes(good_boxes))
-                #    #print(iou)
-                #    #print(torch.max(iou))
+            if i in src_idx:
+                if track_instances.obj_idxes[i] == -1:
+                    print(
+                        "track {} has score {}, assign obj_id {}".format(i, track_instances.scores[i], self.max_obj_id))
+                    track_instances.obj_idxes[i] = self.max_obj_id
+                    self.max_obj_id += 1
+            else:
+                if track_instances.obj_idxes[i] >= 0:
+                    track_instances.disappear_time[i] += 1
+                    if track_instances.disappear_time[i] >= self.miss_tolerance:
+                        track_instances.obj_idxes[i] = -1
 
-                #    if torch.max(iou) < 0.9:
-                #        print("track {} has score {}, assign obj_id {}".format(i, track_instances.scores[i], self.max_obj_id))
-                #        track_instances.obj_idxes[i] = self.max_obj_id
-                #        self.max_obj_id += 1
-                #else:
-                print("track {} has score {}, assign obj_id {}".format(i, track_instances.scores[i], self.max_obj_id))
-                track_instances.obj_idxes[i] = self.max_obj_id
-                self.max_obj_id += 1
-            elif track_instances.obj_idxes[i] >= 0 and track_instances.scores[i] < self.filter_score_thresh:
-                track_instances.disappear_time[i] += 1
-                if track_instances.disappear_time[i] >= self.miss_tolerance:
-                    # Set the obj_id to -1.
-                    # Then this track will be removed by TrackEmbeddingLayer.
-                    track_instances.obj_idxes[i] = -1
-            if track_instances.obj_idxes[i] >= 0:
-                try_boxes = track_instances.pred_boxes[i]
-                ok = True
-                for it in new_list:
-                    if torch.equal(it, try_boxes):
-                        ok = False
-                if ok:
-                    new_list.append(try_boxes)
-                else:
-                    track_instances.obj_idxes[i] = -1
+                if track_instances.obj_idxes[i] >= 0:
+                    try_boxes = track_instances.pred_boxes[i]
+                    ok = True
+                    for it in new_list:
+                        if torch.equal(it, try_boxes):
+                            ok = False
+                    if ok:
+                        new_list.append(try_boxes)
+                    else:
+                        track_instances.obj_idxes[i] = -1
+
+
+            if False:
+                if track_instances.obj_idxes[i] == -1 and track_instances.scores[i] >= self.score_thresh and track_instances.pred_logits[i] >= 0:
+                    #if self.max_obj_id > 0:
+                    #    good_boxes = track_instances[(track_instances.obj_idxes != -1).nonzero()].pred_boxes
+                    #    good_boxes = torch.squeeze(good_boxes, 1)
+                    #    try_boxes = track_instances.pred_boxes[i:i+1]
+                    #    good_boxes = box_ops.box_cxcywh_to_xyxy(good_boxes)
+                    #    try_boxes = box_ops.box_cxcywh_to_xyxy(try_boxes)
+                    #    #print(track_instances[(track_instances.obj_idxes != -1).nonzero()].pred_logits)
+                    #    iou = pairwise_iou(Boxes(try_boxes), Boxes(good_boxes))
+                    #    #print(iou)
+                    #    #print(torch.max(iou))
+
+                    #    if torch.max(iou) < 0.9:
+                    #        print("track {} has score {}, assign obj_id {}".format(i, track_instances.scores[i], self.max_obj_id))
+                    #        track_instances.obj_idxes[i] = self.max_obj_id
+                    #        self.max_obj_id += 1
+                    #else:
+                    print("track {} has score {}, assign obj_id {}".format(i, track_instances.scores[i], self.max_obj_id))
+                    track_instances.obj_idxes[i] = self.max_obj_id
+                    self.max_obj_id += 1
+                elif track_instances.obj_idxes[i] >= 0 and track_instances.scores[i] < self.filter_score_thresh:
+                    track_instances.disappear_time[i] += 1
+                    if track_instances.disappear_time[i] >= self.miss_tolerance:
+                        # Set the obj_id to -1.
+                        # Then this track will be removed by TrackEmbeddingLayer.
+                        track_instances.obj_idxes[i] = -1
+                if track_instances.obj_idxes[i] >= 0:
+                    try_boxes = track_instances.pred_boxes[i]
+                    ok = True
+                    for it in new_list:
+                        if torch.equal(it, try_boxes):
+                            ok = False
+                    if ok:
+                        new_list.append(try_boxes)
+                    else:
+                        track_instances.obj_idxes[i] = -1
+        self._step()
 
 
 class TrackerPostProcess(nn.Module):
@@ -515,7 +556,7 @@ class MOTR(nn.Module):
         return [{'pred_logits': a, 'pred_boxes': b, }
                 for a, b in zip(outputs_class[:-1], outputs_coord[:-1])]
 
-    def _forward_single_image(self, samples, track_instances: Instances):
+    def _forward_single_image(self, samples, gt_instances_i, track_instances: Instances):
         features, pos = self.backbone(samples)
         src, mask = features[-1].decompose()
         assert mask is not None
@@ -586,7 +627,7 @@ class MOTR(nn.Module):
             track_instances = self.criterion.match_for_single_frame(out)
         else:
             # each track will be assigned an unique global id by the track base.
-            self.track_base.update(track_instances)
+            self.track_base.update(track_instances, gt_instances_i)
         if self.memory_bank is not None:
             track_instances = self.memory_bank(track_instances)
             # track_instances.track_scores = track_instances.track_scores[..., 0]
@@ -601,12 +642,12 @@ class MOTR(nn.Module):
         return out
 
     @torch.no_grad()
-    def inference_single_image(self, img, ori_img_size, track_instances=None):
+    def inference_single_image(self, img, ori_img_size, gt_instances_i, track_instances=None):
         if not isinstance(img, NestedTensor):
             img = nested_tensor_from_tensor_list(img)
         if track_instances is None:
             track_instances = self._generate_empty_tracks()
-        res = self._forward_single_image(img,
+        res = self._forward_single_image(img, gt_instances_i,
                                          track_instances=track_instances)
 
         track_instances = res['track_instances']
@@ -634,7 +675,7 @@ class MOTR(nn.Module):
         for frame in frames:
             if not isinstance(frame, NestedTensor):
                 frame = nested_tensor_from_tensor_list([frame])
-            frame_res = self._forward_single_image(frame, track_instances)
+            frame_res = self._forward_single_image(frame, None, track_instances)
             track_instances = frame_res['track_instances']
             outputs['pred_logits'].append(frame_res['pred_logits'])
             outputs['pred_boxes'].append(frame_res['pred_boxes'])
