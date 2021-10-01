@@ -311,7 +311,7 @@ class RuntimeTrackerBase(object):
     def clear(self):
         self.max_obj_id = 0
 
-    def update(self, track_instances: Instances, gt_instances_i):
+    def update(self, track_instances: Instances, gt_instances_i, matcher):
         self.score_thresh = 0.4
         self.filter_score_thresh = 0.4
 
@@ -324,7 +324,7 @@ class RuntimeTrackerBase(object):
         }
 
         new_track_indices = matcher(outputs_i,
-                                    [gt_instances_i])  # list[tuple(src_idx, tgt_idx)]
+                                    [gt_instances_i.to(pred_logits_i.device)])  # list[tuple(src_idx, tgt_idx)]
 
         src_idx = new_track_indices[0][0]
         src_idx = src_idx.cpu().numpy()
@@ -394,7 +394,7 @@ class RuntimeTrackerBase(object):
                         new_list.append(try_boxes)
                     else:
                         track_instances.obj_idxes[i] = -1
-        self._step()
+        #self._step()
 
 
 class TrackerPostProcess(nn.Module):
@@ -627,7 +627,7 @@ class MOTR(nn.Module):
             track_instances = self.criterion.match_for_single_frame(out)
         else:
             # each track will be assigned an unique global id by the track base.
-            self.track_base.update(track_instances, gt_instances_i)
+            self.track_base.update(track_instances, gt_instances_i, self.criterion.matcher)
         if self.memory_bank is not None:
             track_instances = self.memory_bank(track_instances)
             # track_instances.track_scores = track_instances.track_scores[..., 0]

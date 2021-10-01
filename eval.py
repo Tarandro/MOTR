@@ -26,6 +26,7 @@ from __future__ import print_function
 
 import os
 import numpy as np
+import pandas as pd
 import random
 import argparse
 import torchvision.transforms.functional as F
@@ -42,6 +43,8 @@ from typing import List
 from util.evaluation import Evaluator
 import motmetrics as mm
 import shutil
+
+from models.structures import Instances as Instances_
 
 from detectron2.structures import Instances
 
@@ -361,9 +364,9 @@ class Detector(object):
         cv2.imwrite(img_path, img_show)
 
     def load_target(self, data_subset_frame):
-        targets = {}
+        targets = {'boxes':[], 'labels':[]}
         for i, row in data_subset_frame.iterrows():
-            x0, y0, x1, y1 = [row.left/img_width, row.width/img_width, row.top/img_height, row.height/img_height]
+            x0, y0, x1, y1 = row.left/self.img_width, row.top/self.img_height, (row.left+row.width)/self.img_width, (row.top+row.height)/self.img_height
             b = [(x0 + x1) / 2, (y0 + y1) / 2,
                  (x1 - x0), (y1 - y0)]
             targets['boxes'].append(b)
@@ -375,7 +378,7 @@ class Detector(object):
         return targets
 
     def _targets_to_instances(self, targets: dict) -> Instances:
-        gt_instances = Instances(tuple(img_shape))
+        gt_instances = Instances(tuple((self.img_height, self.img_width)))
         gt_instances.boxes = targets['boxes']
         gt_instances.labels = targets['labels']
         return gt_instances
