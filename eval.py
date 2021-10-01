@@ -360,7 +360,27 @@ class Detector(object):
             img_show = draw_bboxes(img_show, gt_boxes, identities=np.ones((len(gt_boxes), )) * -1)
         cv2.imwrite(img_path, img_show)
 
-    def detect(self, prob_threshold=0.7, area_threshold=100, vis=False):
+    def load_target(self, data_subset_frame):
+        targets = {}
+        for i, row in data_subset_frame.iterrows():
+            x0, y0, x1, y1 = [row.left/img_width, row.width/img_width, row.top/img_height, row.height/img_height]
+            b = [(x0 + x1) / 2, (y0 + y1) / 2,
+                 (x1 - x0), (y1 - y0)]
+            targets['boxes'].append(b)
+            targets['labels'].append(0)
+        targets['labels'] = torch.as_tensor(targets['labels'])
+        targets['boxes'] = torch.as_tensor(targets['boxes'], dtype=torch.float32).reshape(-1, 4)
+        #targets['boxes'][:, 0::2].clamp_(min=0, max=w)
+        #targets['boxes'][:, 1::2].clamp_(min=0, max=h)
+        return targets
+
+    def _targets_to_instances(self, targets: dict) -> Instances:
+        gt_instances = Instances(tuple(img_shape))
+        gt_instances.boxes = targets['boxes']
+        gt_instances.labels = targets['labels']
+        return gt_instances
+
+    def detect(self, data_subset, prob_threshold=0.7, area_threshold=100, vis=False):
         total_dts = 0
         track_instances = None
         max_id = 0
@@ -368,12 +388,16 @@ class Detector(object):
             img, targets = self.load_img_from_file(self.img_list[i])
             cur_img, ori_img = self.init_img(img)
 
+            data_subset_frame = data_subset[data_subset.frame.isin([i+1])]
+            targets_i = self.load_target(data_subset_frame)
+            gt_instances_i = self._targets_to_instances(targets_i)
+
             # track_instances = None
             if track_instances is not None:
                 track_instances.remove('boxes')
                 track_instances.remove('labels')
 
-            res = self.detr.inference_single_image(cur_img.cuda().float(), (self.seq_h, self.seq_w), track_instances)
+            res = self.detr.inference_single_image(cur_img.cuda().float(), (self.seq_h, self.seq_w), gt_instances_i, track_instances)
             track_instances = res['track_instances']
             max_id = max(max_id, track_instances.obj_idxes.max().item())
 
@@ -419,10 +443,13 @@ if __name__ == '__main__':
     accs = []
     seqs = []
 
+    data = pd.read_csv(os.path.join(args.mot_path, 'MOT17','pred_label.csv'))
+
     for seq_num in seq_nums:
         print("solve {}".format(seq_num))
         det = Detector(args, model=detr, seq_num=seq_num)
-        det.detect(prob_threshold=0.5, vis=True)
+        data_subset = data[data.video.isin([seq_num+".mp4"])]
+        det.detect(data_subset, prob_threshold=0.5, vis=True)
         accs.append(det.eval_seq())
         seqs.append(seq_num)
         detr.track_base.clear()
