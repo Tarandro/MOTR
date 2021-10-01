@@ -443,7 +443,7 @@ if __name__ == '__main__':
     accs = []
     seqs = []
 
-    data = pd.read_csv(os.path.join(args.mot_path, 'MOT17','pred_label.csv'))
+    data = pd.read_csv(os.path.join(args.mot_path, 'MOT17','train_labels.csv'))
 
     for seq_num in seq_nums:
         print("solve {}".format(seq_num))
