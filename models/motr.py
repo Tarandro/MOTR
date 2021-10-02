@@ -345,16 +345,16 @@ class RuntimeTrackerBase(object):
                     if track_instances.disappear_time[i] >= self.miss_tolerance:
                         track_instances.obj_idxes[i] = -1
 
-                if track_instances.obj_idxes[i] >= 0:
-                    try_boxes = track_instances.pred_boxes[i]
-                    ok = True
-                    for it in new_list:
-                        if torch.equal(it, try_boxes):
-                            ok = False
-                    if ok:
-                        new_list.append(try_boxes)
-                    else:
-                        track_instances.obj_idxes[i] = -1
+            if track_instances.obj_idxes[i] >= 0:
+                try_boxes = track_instances.pred_boxes[i]
+                ok = True
+                for it in new_list:
+                    if torch.equal(it, try_boxes):
+                        ok = False
+                if ok:
+                    new_list.append(try_boxes)
+                else:
+                    track_instances.obj_idxes[i] = -1
 
 
             if False:

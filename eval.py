@@ -378,7 +378,7 @@ class Detector(object):
         return targets
 
     def _targets_to_instances(self, targets: dict) -> Instances:
-        gt_instances = Instances(tuple((self.img_height, self.img_width)))
+        gt_instances = Instances_(tuple((self.img_height, self.img_width)))
         gt_instances.boxes = targets['boxes']
         gt_instances.labels = targets['labels']
         return gt_instances
