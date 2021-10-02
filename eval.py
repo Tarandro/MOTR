@@ -491,7 +491,7 @@ if __name__ == '__main__':
         seqs.append(seq_num)
         detr.track_base.clear()
 
-    data_labels.to_csv(os.path.join(args.output_dir, 'preds', 'data_labels.csv'), index=False)
+    data_labels.to_csv(os.path.join(args.output_dir, 'data_labels.csv'), index=False)
 
     metrics = mm.metrics.motchallenge_metrics
     mh = mm.metrics.create()
