@@ -343,6 +343,27 @@ class Detector(object):
                 line = save_format.format(frame=int(frame_id), id=int(track_id), x1=x1, y1=y1, w=w, h=h)
                 f.write(line)
 
+    @staticmethod
+    def write_results_csv(txt_path, frame_id, bbox_xyxy, identities, scores):
+
+        dict_result = {'frame':[], 'left':[],'top':[],'width':[],'height':[],'cluster':[], 'conf':[]}
+        for xyxy, track_id, score in zip(bbox_xyxy, identities, scores):
+            if track_id < 0 or track_id is None:
+                continue
+            x1, y1, x2, y2 = xyxy
+            w, h = x2 - x1, y2 - y1
+
+            dict_result['frame'].append(int(frame_id))
+            dict_result['left'].append(x1)
+            dict_result['top'].append(y1)
+            dict_result['width'].append(w)
+            dict_result['height'].append(h)
+            dict_result['cluster'].append(int(track_id))
+            dict_result['conf'].append(score)
+
+        return pd.DataFrame(dict_result)
+
+
     def eval_seq(self):
         data_root = os.path.join(self.args.mot_path, 'MOT17/images')
         result_filename = os.path.join(self.predict_path, 'gt.txt')
@@ -387,6 +408,7 @@ class Detector(object):
         total_dts = 0
         track_instances = None
         max_id = 0
+        data = pd.DataFrame()
         for i in tqdm(range(0, self.img_len)):
             img, targets = self.load_img_from_file(self.img_list[i])
             cur_img, ori_img = self.init_img(img)
@@ -425,7 +447,15 @@ class Detector(object):
                                frame_id=(i + 1),
                                bbox_xyxy=tracker_outputs[:, :4],
                                identities=tracker_outputs[:, 5])
+
+            data_frame = self.write_results_csv(txt_path=os.path.join(self.predict_path, 'gt.txt'),
+                               frame_id=(i + 1),
+                               bbox_xyxy=tracker_outputs[:, :4],
+                               identities=tracker_outputs[:, 5],
+                               scores= tracker_outputs[:, 4])
+            data = pd.concat([data, data_frame], axis=0).reset_index(drop=True)
         print("totally {} dts max_id={}".format(total_dts, max_id))
+        return data
 
 
 if __name__ == '__main__':
@@ -447,15 +477,21 @@ if __name__ == '__main__':
     seqs = []
 
     data = pd.read_csv(os.path.join(args.mot_path, 'MOT17','train_labels.csv'))
+    data_labels = pd.DataFrame()
 
     for seq_num in seq_nums:
         print("solve {}".format(seq_num))
         det = Detector(args, model=detr, seq_num=seq_num)
         data_subset = data[data.video.isin([seq_num+".mp4"])]
-        det.detect(data_subset, prob_threshold=0.5, vis=True)
+        data_labels_seq = det.detect(data_subset, prob_threshold=0.5, vis=True)
+        data_labels_seq["video"] = seq_num
+        data_labels_seq["video_frame"] = [video + "_" + str(frame) for video, frame in zip(data_labels_seq["video"], data_labels_seq["frame"])]
+        data_labels = pd.concat([data_labels, data_labels_seq], axis=0).reset_index(drop=True)
         accs.append(det.eval_seq())
         seqs.append(seq_num)
         detr.track_base.clear()
+
+    data_labels.to_csv(os.path.join(args.output_dir, 'preds', 'data_labels.csv'), index=False)
 
     metrics = mm.metrics.motchallenge_metrics
     mh = mm.metrics.create()
