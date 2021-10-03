@@ -473,6 +473,12 @@ if __name__ == '__main__':
     detr.eval()
 
     seq_nums = ["57904_001367_Sideline", "57998_002181_Sideline", "58103_003494_Sideline", "57786_003085_Sideline"]
+    seq_nums = ["57904_001367_Sideline", "57998_002181_Sideline", "57992_000350_Sideline",
+                "57586_001934_Sideline", "57700_001264_Sideline", "57676_003572_Sideline",
+                "58104_000352_Sideline", "58098_001193_Sideline", "57680_002206_Sideline",
+                "58048_000086_Sideline", "57586_004152_Sideline", "57782_000600_Sideline",
+                "58094_000423_Sideline", "57786_003085_Sideline", "57995_000109_Sideline",
+                "58103_003494_Sideline"]
     accs = []
     seqs = []
 
