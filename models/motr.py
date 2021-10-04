@@ -330,7 +330,7 @@ class RuntimeTrackerBase(object):
         src_idx = src_idx.cpu().numpy()
 
         track_instances.disappear_time[track_instances.scores >= self.filter_score_thresh] = 0
-        ordered, indices = torch.sort(track_instances.obj_idxes)
+        ordered, indices = torch.sort(track_instances.scores)  # obj_idxes
         new_list = []
         for i in indices.cpu().numpy():
             if i in src_idx:

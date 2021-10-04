@@ -479,7 +479,7 @@ if __name__ == '__main__':
                 "58048_000086_Sideline", "57586_004152_Sideline", "57782_000600_Sideline",
                 "58094_000423_Sideline", "57786_003085_Sideline", "57995_000109_Sideline",
                 "58103_003494_Sideline"]
-    seq_nums = ["57904_001367_Sideline", "57998_002181_Sideline", "58103_003494_Sideline", "57786_003085_Sideline"]
+    seq_nums = ["57904_001367_Sideline"]
     accs = []
     seqs = []
 
