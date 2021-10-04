@@ -349,7 +349,7 @@ class RuntimeTrackerBase(object):
                 try_boxes = track_instances.pred_boxes[i]
                 ok = True
                 for it in new_list:
-                    if torch.equal(it, try_boxes):
+                    if torch.allclose(it, try_boxes):
                         ok = False
                 if ok:
                     new_list.append(try_boxes)
