@@ -480,6 +480,12 @@ if __name__ == '__main__':
                 "58094_000423_Sideline", "57786_003085_Sideline", "57995_000109_Sideline",
                 "58103_003494_Sideline"]
     seq_nums = ["57904_001367_Sideline"]
+    if "endzone" in args.output_dir:
+        seq_nums = ["57778_004244_Endzone", "57586_001934_Endzone", "57992_000350_Endzone", "58106_002918_Endzone",
+                     "57997_003691_Endzone", "57790_002839_Endzone", "57596_002686_Endzone", "57775_000933_Endzone",
+                     "57684_001985_Endzone", "57787_003413_Endzone", "57912_001325_Endzone", "58094_000423_Endzone",
+                     "57906_000718_Endzone", "58048_000086_Endzone"]
+        seq_nums = ["57778_004244_Endzone", "57586_001934_Endzone", "57992_000350_Endzone", "58106_002918_Endzone"]
     accs = []
     seqs = []
 
