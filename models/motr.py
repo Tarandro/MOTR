@@ -347,7 +347,7 @@ class RuntimeTrackerBase(object):
 
             if track_instances.obj_idxes[i] >= 0:
                 try_boxes = track_instances.pred_boxes[i]
-                try_boxes = try_boxes * torch.Tensor([1280, 720, 1280, 720]).to(boxes)
+                try_boxes = try_boxes * torch.Tensor([1280, 720, 1280, 720]).to(try_boxes)
                 try_boxes = try_boxes.round()
                 ok = True
                 for it in new_list:

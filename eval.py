@@ -498,7 +498,7 @@ if __name__ == '__main__':
         data_subset = data[data.video.isin([seq_num+".mp4"])]
         data_labels_seq = det.detect(data_subset, prob_threshold=0.5, vis=True)
         data_labels_seq["video"] = seq_num
-        data_labels_seq["video_frame"] = [video + "_" + str(frame) for video, frame in zip(data_labels_seq["video"], data_labels_seq["frame"])]
+        data_labels_seq["video_frame"] = [video + "_" + str(int(frame)) for video, frame in zip(data_labels_seq["video"], data_labels_seq["frame"])]
         data_labels = pd.concat([data_labels, data_labels_seq], axis=0).reset_index(drop=True)
         accs.append(det.eval_seq())
         seqs.append(seq_num)
