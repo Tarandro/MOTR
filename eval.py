@@ -43,6 +43,7 @@ from typing import List
 from util.evaluation import Evaluator
 import motmetrics as mm
 import shutil
+import glob
 
 from models.structures import Instances as Instances_
 
@@ -274,9 +275,15 @@ class Detector(object):
         self.detr = model
 
         self.seq_num = seq_num
-        img_list = os.listdir(os.path.join(self.args.mot_path, 'MOT17/images', self.seq_num))
-        img_list = [os.path.join(self.args.mot_path, 'MOT17/images', self.seq_num, _) for _ in img_list if
-                    ('jpg' in _) or ('png' in _)]
+        if not os.path.exists("/kaggle/working/train_images"):
+            img_list = os.listdir(os.path.join(self.args.mot_path, 'MOT17/images', self.seq_num))
+            img_list = [os.path.join(self.args.mot_path, 'MOT17/images', self.seq_num, _) for _ in img_list if
+                        ('jpg' in _) or ('png' in _)]
+            # img_list = os.listdir(os.path.join(self.args.mot_path, 'MOT17/images', self.seq_num))
+        else:
+            img_list = glob.glob("/kaggle/working/train_images/" + self.seq_num + "*")
+            img_list = [os.path.join('/kaggle/working/train_images', _) for _ in img_list if
+                        ('jpg' in _) or ('png' in _)]
 
         self.img_list = sorted(img_list)
         self.img_len = len(self.img_list)
