@@ -40,7 +40,6 @@ from util.tool import load_model
 from main import get_args_parser
 from torch.nn.functional import interpolate
 from typing import List
-from util.evaluation import Evaluator
 import shutil
 
 from models.structures import Instances as Instances_
@@ -361,14 +360,6 @@ class Detector(object):
             dict_result['conf'].append(score)
 
         return pd.DataFrame(dict_result)
-
-
-    def eval_seq(self):
-        data_root = os.path.join(self.args.mot_path, 'MOT17/images')
-        result_filename = os.path.join(self.predict_path, 'gt.txt')
-        evaluator = Evaluator(data_root, self.seq_num)
-        accs = evaluator.eval_file(result_filename)
-        return accs
 
     @staticmethod
     def visualize_img_with_bbox(img_path, img, dt_instances: Instances, ref_pts=None, gt_boxes=None):
