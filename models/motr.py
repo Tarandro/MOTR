@@ -312,7 +312,7 @@ class RuntimeTrackerBase(object):
         self.max_obj_id = 0
 
     def update(self, track_instances: Instances, gt_instances_i, matcher):
-        self.score_thresh = 0.4
+        self.score_thresh = 0.3
         self.filter_score_thresh = 0.4
 
         pred_logits_i = track_instances.pred_logits  # predicted logits of i-th image.
@@ -334,7 +334,7 @@ class RuntimeTrackerBase(object):
         new_list = []
         for i in indices.cpu().numpy():
             if i in src_idx:
-                if track_instances.obj_idxes[i] == -1:
+                if track_instances.obj_idxes[i] == -1 and track_instances.scores[i] >= self.score_thresh:
                     print(
                         "track {} has score {}, assign obj_id {}".format(i, track_instances.scores[i], self.max_obj_id))
                     track_instances.obj_idxes[i] = self.max_obj_id
