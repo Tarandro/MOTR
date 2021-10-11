@@ -334,7 +334,7 @@ class RuntimeTrackerBase(object):
         new_list = []
         for i in indices.cpu().numpy():
             if i in src_idx:
-                if track_instances.obj_idxes[i] == -1 and track_instances.scores[i] >= self.score_thresh:
+                if track_instances.obj_idxes[i] == -1:
                     print(
                         "track {} has score {}, assign obj_id {}".format(i, track_instances.scores[i], self.max_obj_id))
                     track_instances.obj_idxes[i] = self.max_obj_id
