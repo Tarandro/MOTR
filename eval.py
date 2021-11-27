@@ -479,20 +479,8 @@ if __name__ == '__main__':
     detr = detr.cuda()
     detr.eval()
 
-    seq_nums = ["57904_001367_Sideline", "57998_002181_Sideline", "58103_003494_Sideline", "57786_003085_Sideline"]
-    seq_nums = ["57904_001367_Sideline", "57998_002181_Sideline", "57992_000350_Sideline",
-                "57586_001934_Sideline", "57700_001264_Sideline", "57676_003572_Sideline",
-                "58104_000352_Sideline", "58098_001193_Sideline", "57680_002206_Sideline",
-                "58048_000086_Sideline", "57586_004152_Sideline", "57782_000600_Sideline",
-                "58094_000423_Sideline", "57786_003085_Sideline", "57995_000109_Sideline",
-                "58103_003494_Sideline"]
-    seq_nums = ["57904_001367_Sideline"]
-    if "endzone" in args.output_dir:
-        seq_nums = ["57778_004244_Endzone", "57586_001934_Endzone", "57992_000350_Endzone", "58106_002918_Endzone",
-                     "57997_003691_Endzone", "57790_002839_Endzone", "57596_002686_Endzone", "57775_000933_Endzone",
-                     "57684_001985_Endzone", "57787_003413_Endzone", "57912_001325_Endzone", "58094_000423_Endzone",
-                     "57906_000718_Endzone", "58048_000086_Endzone"]
-        seq_nums = ["57778_004244_Endzone", "57586_001934_Endzone", "57992_000350_Endzone", "58106_002918_Endzone"]
+    seq_nums = ["video_58", "video_60", "video_61", "video_62", "video_63", "video_65", "video_66"]
+
     accs = []
     seqs = []
 
